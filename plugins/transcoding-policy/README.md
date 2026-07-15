@@ -38,7 +38,7 @@ Install and manage the plugin through Jellyfin's plugin system:
 2. Add a repository with these values:
 
    ```text
-   Repository name: Transcoding Policy
+   Repository name: Jellyfin Plugins
    Repository URL:  https://raw.githubusercontent.com/NathanBland/jellyfin-plugins/manifest/manifest.json
    ```
 

@@ -6,7 +6,7 @@ Jellyfin catalog and GitHub Actions workflows live at the repository root.
 
 ## Jellyfin repository
 
-Add this URL under **Dashboard → Plugins → Repositories**:
+Add a repository named **Jellyfin Plugins** under **Dashboard → Plugins → Repositories** using this URL:
 
 ```text
 https://raw.githubusercontent.com/NathanBland/jellyfin-plugins/manifest/manifest.json
