@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using Jellyfin.Plugin.CommercialSkipper.Configuration;
+using Jellyfin.Plugin.CommercialSkipper.Models;
 using Jellyfin.Plugin.RecordingPipeline;
 
 namespace Jellyfin.Plugin.CommercialSkipper.Analysis;
@@ -14,9 +16,9 @@ public sealed class ComskipRunner(ProcessRunner processRunner)
 {
     public string? ResolveExecutable(string? configuredPath)
     {
-        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(configuredPath))
+        if (!string.IsNullOrWhiteSpace(configuredPath))
         {
-            return Path.GetFullPath(configuredPath);
+            return File.Exists(configuredPath) ? Path.GetFullPath(configuredPath) : null;
         }
 
         var candidates = new List<string>();
@@ -27,17 +29,86 @@ public sealed class ComskipRunner(ProcessRunner processRunner)
         return candidates.FirstOrDefault(File.Exists);
     }
 
-    public async Task<ProcessResult> TestAsync(PluginConfiguration configuration, CancellationToken cancellationToken)
+    public async Task<DetectorTestResult> TestAsync(
+        PluginConfiguration configuration,
+        CancellationToken cancellationToken)
     {
-        var executable = ResolveExecutable(configuration.ComskipPath)
-            ?? throw new FileNotFoundException("Comskip was not found. Configure an executable path first.");
-        _ = ComskipIniBuilder.Build(configuration);
-        return await processRunner.RunAsync(
-            executable,
-            ["--help"],
-            TimeSpan.FromSeconds(10),
-            null,
-            cancellationToken).ConfigureAwait(false);
+        var executable = ResolveExecutable(configuration.ComskipPath);
+        if (executable is null)
+        {
+            var error = string.IsNullOrWhiteSpace(configuration.ComskipPath)
+                ? "Comskip was not found. Install it or enter its executable path."
+                : $"The configured Comskip executable was not found: {configuration.ComskipPath}";
+            return new DetectorTestResult(false, null, null, false, string.Empty, string.Empty, error);
+        }
+
+        if (!string.IsNullOrWhiteSpace(configuration.CustomIniPath)
+            && !File.Exists(configuration.CustomIniPath))
+        {
+            return new DetectorTestResult(
+                false,
+                executable,
+                null,
+                false,
+                string.Empty,
+                string.Empty,
+                $"The custom Comskip INI file was not found: {configuration.CustomIniPath}");
+        }
+
+        try
+        {
+            _ = ComskipIniBuilder.Build(configuration);
+            var process = await processRunner.RunAsync(
+                executable,
+                ["--help"],
+                TimeSpan.FromSeconds(10),
+                null,
+                cancellationToken).ConfigureAwait(false);
+            var displayedHelp = process.StandardOutput.Contains("Usage:", StringComparison.OrdinalIgnoreCase)
+                || process.StandardError.Contains("Usage:", StringComparison.OrdinalIgnoreCase);
+            var success = !process.TimedOut && (process.ExitCode == 0 || displayedHelp);
+            var error = success
+                ? null
+                : process.TimedOut
+                    ? "Comskip did not finish its help command within 10 seconds."
+                    : BuildExitError(process);
+            return new DetectorTestResult(
+                success,
+                executable,
+                process.ExitCode,
+                process.TimedOut,
+                process.StandardOutput,
+                process.StandardError,
+                error);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception exception) when (exception is IOException
+            or UnauthorizedAccessException
+            or InvalidOperationException
+            or Win32Exception)
+        {
+            return new DetectorTestResult(
+                false,
+                executable,
+                null,
+                false,
+                string.Empty,
+                string.Empty,
+                $"Unable to run Comskip: {exception.Message}");
+        }
+    }
+
+    private static string BuildExitError(ProcessResult process)
+    {
+        var detail = !string.IsNullOrWhiteSpace(process.StandardError)
+            ? process.StandardError.Trim()
+            : process.StandardOutput.Trim();
+        return string.IsNullOrWhiteSpace(detail)
+            ? $"Comskip exited with code {process.ExitCode}."
+            : $"Comskip exited with code {process.ExitCode}: {detail}";
     }
 
     public async Task<ComskipRunResult> RunAsync(

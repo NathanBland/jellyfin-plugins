@@ -45,4 +45,17 @@ public sealed record CommercialQueueStatus(
     int FailedResults,
     string? LastError);
 
+public sealed record DetectorTestRequest(
+    string? ComskipPath = null,
+    string? CustomIniPath = null);
+
+public sealed record DetectorTestResult(
+    bool Success,
+    string? Executable,
+    int? ExitCode,
+    bool TimedOut,
+    string StandardOutput,
+    string StandardError,
+    string? Error);
+
 public sealed record ScanRequest(bool Force = false);

@@ -70,6 +70,25 @@
                 });
             }
 
+            async function formatApiError(error) {
+                if (error && typeof error.text === 'function') {
+                    try {
+                        const body = await error.text();
+                        if (body) {
+                            try {
+                                const problem = JSON.parse(body);
+                                return problem.detail || problem.title || problem.message || body;
+                            } catch {
+                                return body;
+                            }
+                        }
+                    } catch {
+                    }
+                }
+
+                return error && error.message ? error.message : String(error);
+            }
+
             async function loadLibraries() {
                 const libraries = await api('CommercialSkipper/Libraries');
                 const host = value('CommercialSkipperLibraries');
@@ -149,7 +168,23 @@
 
             value('CommercialSkipperTest').addEventListener('click', async () => {
                 Dashboard.showLoadingMsg();
-                try { const result = await api('CommercialSkipper/Detector/Test', 'POST'); const exitCode = property(result, 'exitCode', 'ExitCode'); const standardError = property(result, 'standardError', 'StandardError'); Dashboard.alert(exitCode === 0 ? 'Comskip started successfully.' : 'Comskip returned ' + exitCode + ': ' + standardError); } catch (error) { Dashboard.alert(error.message || String(error)); } finally { Dashboard.hideLoadingMsg(); }
+                try {
+                    const result = await api('CommercialSkipper/Detector/Test', 'POST', {
+                        ComskipPath: value('ComskipPath').value.trim(),
+                        CustomIniPath: value('CustomIniPath').value.trim()
+                    });
+                    const success = property(result, 'success', 'Success');
+                    const executable = property(result, 'executable', 'Executable');
+                    const exitCode = property(result, 'exitCode', 'ExitCode');
+                    const error = property(result, 'error', 'Error');
+                    Dashboard.alert(success
+                        ? 'Comskip verified: ' + executable + ' (help exit code ' + exitCode + ').'
+                        : 'Comskip test failed: ' + (error || 'Unknown detector error.'));
+                } catch (error) {
+                    Dashboard.alert('Comskip test failed: ' + await formatApiError(error));
+                } finally {
+                    Dashboard.hideLoadingMsg();
+                }
             });
             value('CommercialSkipperScan').addEventListener('click', async () => { await api('CommercialSkipper/Scans', 'POST', { Force: false }); await refreshStatus(); });
             value('CommercialSkipperForceScan').addEventListener('click', async () => { await api('CommercialSkipper/Scans', 'POST', { Force: true }); await refreshStatus(); });

@@ -15,5 +15,8 @@ public sealed class ConfigurationPageTests
 
         Assert.DoesNotContain("${", html);
         Assert.DoesNotContain("`", html);
+        Assert.Contains("async function formatApiError(error)", html, StringComparison.Ordinal);
+        Assert.Contains("ComskipPath: value('ComskipPath').value.trim()", html, StringComparison.Ordinal);
+        Assert.Contains("Comskip test failed: ", html, StringComparison.Ordinal);
     }
 }
