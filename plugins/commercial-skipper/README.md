@@ -25,7 +25,7 @@ if you do not already have a checkout:
 ```bash
 git clone https://github.com/NathanBland/jellyfin-plugins.git
 cd jellyfin-plugins/plugins/commercial-skipper
-brew install autoconf automake libtool pkgconf argtable ffmpeg
+brew install autoconf automake libtool pkgconf argtable ffmpeg@7
 ./scripts/build-comskip-macos.sh
 ```
 
@@ -40,6 +40,12 @@ location:
 ```
 
 Enter the resulting executable path on the plugin page. Comskip is not bundled in the Jellyfin plugin ZIP.
+
+The helper deliberately builds against Homebrew `ffmpeg@7`. The pinned Comskip
+source does not compile against FFmpeg 8, while the current upstream FFmpeg 8
+compatibility change remains unmerged. Jellyfin's portable macOS FFmpeg package
+contains the `ffmpeg` and `ffprobe` runtime executables, not the headers and
+pkg-config metadata required to compile Comskip.
 
 ## Configure skip prompts
 
