@@ -68,6 +68,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.0.0.1",
+        "changelog": "Fix dynamic library labels, paths, status, capability details, and encoder messages rendering as JavaScript source in Jellyfin Web. Build dynamic library rows with safe DOM text nodes and add embedded-page regression coverage.",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://github.com/NathanBland/jellyfin-plugins/releases/download/recording-transcoder-v1.0.0.1/recording-transcoder_1.0.0.1.zip",
+        "checksum": "21f1cd7b8430653607166d4ac3aa6c40",
+        "timestamp": "2026-07-16T01:06:23Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "Initial release with cross-platform Jellyfin hardware settings, verified software fallback, transactional recording replacement, stream and caption validation, crash recovery, and coordinated commercial scans.",
         "targetAbi": "10.11.11.0",
