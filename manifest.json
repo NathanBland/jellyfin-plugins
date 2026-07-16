@@ -34,6 +34,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.0.0.1",
+        "changelog": "Fix Jellyfin 10.11.11 startup by removing a circular dependency between the commercial segment provider and the recordings manager. Add an isolated Jellyfin startup regression check.",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://github.com/NathanBland/jellyfin-plugins/releases/download/commercial-skipper-v1.0.0.1/commercial-skipper_1.0.0.1.zip",
+        "checksum": "a53e0c5ae00ae07062132e3df20d4c63",
+        "timestamp": "2026-07-16T00:40:07Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "Initial release with DVR library discovery, coordinated Comskip analysis, native Jellyfin Commercial segments, scheduled reconciliation, and admin controls.",
         "targetAbi": "10.11.11.0",
