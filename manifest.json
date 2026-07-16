@@ -34,6 +34,14 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.0.0.2",
+        "changelog": "Fix dynamic library labels, paths, status, and detector messages rendering as JavaScript source in Jellyfin Web. Build dynamic library rows with safe DOM text nodes and add embedded-page regression coverage.",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://github.com/NathanBland/jellyfin-plugins/releases/download/commercial-skipper-v1.0.0.2/commercial-skipper_1.0.0.2.zip",
+        "checksum": "35c0c9db0fa6402b47a336d3f562db73",
+        "timestamp": "2026-07-16T01:05:12Z"
+      },
+      {
         "version": "1.0.0.1",
         "changelog": "Fix Jellyfin 10.11.11 startup by removing a circular dependency between the commercial segment provider and the recordings manager. Add an isolated Jellyfin startup regression check.",
         "targetAbi": "10.11.11.0",
