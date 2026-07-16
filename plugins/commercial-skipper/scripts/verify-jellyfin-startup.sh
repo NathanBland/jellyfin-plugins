@@ -18,6 +18,7 @@ mkdir -p "$work/config/plugins/Commercial Skipper_$version" "$work/cache"
 unzip -q "$archive" -d "$work/config/plugins/Commercial Skipper_$version"
 
 docker run --detach --name "$container" \
+  --user "$(id -u):$(id -g)" \
   --volume "$work/config:/config" \
   --volume "$work/cache:/cache" \
   "$image" >/dev/null
