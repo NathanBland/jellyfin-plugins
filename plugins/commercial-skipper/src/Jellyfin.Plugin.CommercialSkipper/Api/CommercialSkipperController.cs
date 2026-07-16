@@ -5,6 +5,7 @@ using Jellyfin.Plugin.RecordingPipeline;
 using MediaBrowser.Common.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Jellyfin.Plugin.CommercialSkipper.Api;
 
@@ -27,8 +28,18 @@ public sealed class CommercialSkipperController(
     public ActionResult<CommercialQueueStatus> GetStatus() => Ok(jobService.GetStatus());
 
     [HttpPost("Detector/Test")]
-    public async Task<ActionResult<ProcessResult>> TestDetector(CancellationToken cancellationToken)
-        => Ok(await comskipRunner.TestAsync(Plugin.Instance!.Configuration, cancellationToken).ConfigureAwait(false));
+    public async Task<ActionResult<DetectorTestResult>> TestDetector(
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] DetectorTestRequest? request,
+        CancellationToken cancellationToken)
+    {
+        var savedConfiguration = Plugin.Instance!.Configuration;
+        var testConfiguration = new Configuration.PluginConfiguration
+        {
+            ComskipPath = request?.ComskipPath ?? savedConfiguration.ComskipPath,
+            CustomIniPath = request?.CustomIniPath ?? savedConfiguration.CustomIniPath
+        };
+        return Ok(await comskipRunner.TestAsync(testConfiguration, cancellationToken).ConfigureAwait(false));
+    }
 
     [HttpPost("Scans")]
     public ActionResult<object> StartScan([FromBody] ScanRequest? request)

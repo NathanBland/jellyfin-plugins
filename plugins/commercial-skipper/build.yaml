@@ -1,7 +1,7 @@
 ---
 name: "Commercial Skipper"
 guid: "19323a5b-d8ac-45f4-a1c5-3832498c58bc"
-version: "1.0.0.2"
+version: "1.0.0.3"
 targetAbi: "10.11.11.0"
 framework: "net9.0"
 overview: "Detect commercials in DVR recordings with Comskip."
@@ -13,6 +13,6 @@ owner: "nathanbland"
 artifacts:
 - "Jellyfin.Plugin.CommercialSkipper.dll"
 changelog: >
-  Fix dynamic library labels, paths, status, and detector messages rendering as
-  JavaScript source in Jellyfin Web. Build dynamic library rows with safe DOM text
-  nodes and add embedded-page regression coverage.
+  Replace opaque [object Response] Comskip test failures with structured diagnostics
+  for missing executables, invalid INI paths, timeouts, and process failures. Test the
+  form's current paths and recognize Comskip's expected exit code 2 help response.
